@@ -1,0 +1,4 @@
+﻿column,method,k,lower_bound,upper_bound,capped_count,capped_percent
+adr,IQR capping,3.0,-111.71999999999997,319.05999999999995,135,0.15582976463934067
+lead_time,IQR capping,3.0,-330.0,468.0,108,0.12466381171147252
+total_nights,IQR capping,3.0,-7.0,14.0,364,0.4201632172497778
