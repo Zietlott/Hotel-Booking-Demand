@@ -22,7 +22,7 @@ Kết quả:
 
 from pathlib import Path
 import pandas as pd
-import numpy as np
+
 
 
 # ============================================================
@@ -163,19 +163,22 @@ children_median = df["children"].median()
 print(f"Mode của children: {children_mode}")
 print(f"Median của children: {children_median}")
 
-# children là số lượng trẻ em.
+# children là số lượng trẻ em nên giá trị phải là số nguyên.
 # Nếu mode và median đều bằng 0 thì 0 là giá trị đại diện hợp lý.
 # Nếu không, dùng median để giảm ảnh hưởng của các giá trị lệch.
+# Median có thể cho ra số thập phân, ví dụ 1.5,
+# nên làm tròn về số nguyên gần nhất trước khi điền.
 if children_mode == 0 and children_median == 0:
     children_fill_value = 0
 else:
-    children_fill_value = children_median
+    children_fill_value = round(children_median)
 
 df["children"] = df["children"].fillna(children_fill_value)
 
+# Ép kiểu int để đảm bảo cột children chỉ chứa số nguyên.
+df["children"] = df["children"].astype(int)
+
 print(f"Đã thay giá trị thiếu của children bằng: {children_fill_value}")
-
-
 # ============================================================
 # 9. XỬ LÝ COUNTRY
 # ============================================================
@@ -806,22 +809,43 @@ print(
 
 
 # ============================================================
-# 21. LƯU DỮ LIỆU SẠCH
+# 21. KIỂM TRA CÁC ĐIỀU KIỆN DỮ LIỆU HỢP LỆ
+# ============================================================
+
+# Kiểm tra giá trị children có phải số nguyên không.
+if not (df["children"] % 1 == 0).all():
+    raise ValueError(
+        "Cột children vẫn còn giá trị không nguyên!"
+    )
+
+# Kiểm tra dữ liệu không hợp lệ.
+if (df["adr"] < 0).any():
+    raise ValueError("Vẫn còn ADR âm!")
+
+if (df["total_guests"] <= 0).any():
+    raise ValueError("Vẫn còn booking không có khách!")
+
+if (df["total_nights"] <= 0).any():
+    raise ValueError("Vẫn còn booking có 0 đêm!")
+
+# Kiểm tra ngày tháng.
+if df["arrival_date"].isna().any():
+    raise ValueError("Vẫn còn ngày đến không hợp lệ!")
+
+print("\nTất cả kiểm tra cuối đã hoàn thành.")
+
+
+# ============================================================
+# 22. LƯU DỮ LIỆU SẠCH
 # ============================================================
 
 CLEANED_PATH = (
     PROCESSED_DIR / "hotel_bookings_cleaned.csv"
 )
 
-df.to_csv(
-    CLEANED_PATH,
-    index=False,
-    encoding="utf-8-sig"
-)
-
 
 # ============================================================
-# 22. KẾT LUẬN DATA CLEANING
+# 23. KẾT LUẬN DATA CLEANING
 # ============================================================
 
 print("\n" + "=" * 70)
