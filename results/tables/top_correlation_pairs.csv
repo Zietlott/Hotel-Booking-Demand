@@ -1,0 +1,16 @@
+Variable_1,Variable_2,Pearson_Correlation
+stays_in_week_nights,total_nights,0.918
+adults,total_guests,0.802
+stays_in_weekend_nights,total_nights,0.761
+children,total_guests,0.597
+stays_in_weekend_nights,stays_in_week_nights,0.547
+adr,total_guests,0.407
+previous_cancellations,previous_bookings_not_canceled,0.392
+children,adr,0.349
+lead_time,total_nights,0.344
+lead_time,stays_in_week_nights,0.312
+adults,adr,0.257
+lead_time,stays_in_weekend_nights,0.235
+required_car_parking_spaces,is_canceled,-0.186
+lead_time,is_canceled,0.184
+babies,total_guests,0.167
