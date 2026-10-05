@@ -1,29 +1,5 @@
-"""
-TV1 - DATA CLEANING
-Dataset: Hotel Booking Demand
-
-File này thực hiện:
-1. Đọc dữ liệu gốc
-2. Kiểm tra cấu trúc dữ liệu
-3. Xử lý giá trị thiếu
-4. Xóa dữ liệu trùng lặp
-5. Kiểm tra dữ liệu không hợp lệ
-6. Tạo các biến mới
-7. Kiểm tra ngày tháng
-8. Phát hiện outlier bằng IQR
-9. Xử lý giá trị ADR cực đoan
-10. Capping một số biến bằng IQR
-11. Lưu dữ liệu sạch
-
-Kết quả:
-- Dữ liệu sạch: data/processed/hotel_bookings_cleaned.csv
-- Các bảng thống kê: results/
-"""
-
 from pathlib import Path
 import pandas as pd
-
-
 
 # ============================================================
 # 1. KHAI BÁO ĐƯỜNG DẪN
@@ -40,7 +16,6 @@ PROCESSED_DIR = BASE_DIR / "data" / "processed"
 
 # Các bảng thống kê trong quá trình cleaning được lưu vào results
 RESULTS_DIR = BASE_DIR / "results"
-
 PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -54,41 +29,33 @@ print("TV1 - DATA CLEANING")
 print("=" * 70)
 
 print("\n[1] Đọc dữ liệu...")
-
 df = pd.read_csv(RAW_PATH)
 
 # Lưu số dòng ban đầu để cuối chương trình có thể báo cáo
 # dữ liệu đã giảm bao nhiêu dòng sau quá trình cleaning.
 initial_rows = len(df)
-
 print(f"Kích thước dữ liệu ban đầu: {df.shape}")
 print(f"Số dòng ban đầu: {initial_rows:,}")
 print(f"Số cột ban đầu: {df.shape[1]:,}")
 
-
 # ============================================================
 # 3. KIỂM TRA THÔNG TIN DỮ LIỆU
 # ============================================================
-
 print("\n[2] Thông tin dữ liệu:")
 print(df.info())
 
 print("\n5 dòng đầu tiên:")
 print(df.head())
 
-
 # ============================================================
 # 4. KIỂM TRA GIÁ TRỊ THIẾU
 # ============================================================
-
 print("\n[3] KIỂM TRA GIÁ TRỊ THIẾU")
-
 missing_before = df.isnull().sum()
 missing_before = missing_before[missing_before > 0]
 
 print("\nGiá trị thiếu trước khi xử lý:")
 print(missing_before)
-
 
 # Lưu bảng missing trước xử lý vào results
 missing_before_table = (
@@ -96,32 +63,24 @@ missing_before_table = (
     .sum()
     .reset_index()
 )
-
 missing_before_table.columns = ["column", "missing_before"]
-
 
 # ============================================================
 # 5. TẠO CỘT ĐÁNH DẤU MISSING
 # ============================================================
-
 # Các cột này được tạo để ghi nhận ban đầu dữ liệu có bị thiếu hay không.
 # Sau khi điền dữ liệu, thông tin này vẫn được giữ lại để phục vụ phân tích.
-
 df["agent_was_missing"] = df["agent"].isna().astype(int)
-
 df["children_was_missing"] = df["children"].isna().astype(int)
-
 df["country_was_missing"] = df["country"].isna().astype(int)
 
 # company có rất nhiều giá trị thiếu.
 # Tạo biến has_company trước khi loại bỏ cột company.
 df["has_company"] = df["company"].notna().astype(int)
 
-
 # ============================================================
 # 6. XỬ LÝ CỘT COMPANY
 # ============================================================
-
 print("\n[4] Xử lý cột company...")
 
 # company có tỷ lệ thiếu rất cao.
@@ -129,37 +88,27 @@ print("\n[4] Xử lý cột company...")
 # Thay vào đó, ta giữ lại thông tin có/không có company qua has_company
 # rồi loại bỏ cột company.
 company_missing_rate = df["company"].isna().mean() * 100
-
 print(f"Tỷ lệ thiếu của company: {company_missing_rate:.2f}%")
-
 df.drop(columns=["company"], inplace=True)
-
 print("Đã loại bỏ cột company.")
-
 
 # ============================================================
 # 7. XỬ LÝ AGENT
 # ============================================================
-
 print("\n[5] Xử lý agent...")
 
 # agent là mã đại lý.
 # Giá trị thiếu được thay bằng 0 để biểu diễn trường hợp
 # không có thông tin đại lý.
 df["agent"] = df["agent"].fillna(0)
-
 print("Đã thay giá trị thiếu của agent bằng 0.")
-
 
 # ============================================================
 # 8. XỬ LÝ CHILDREN
 # ============================================================
-
 print("\n[6] Xử lý children...")
-
 children_mode = df["children"].mode(dropna=True)[0]
 children_median = df["children"].median()
-
 print(f"Mode của children: {children_mode}")
 print(f"Median của children: {children_median}")
 
@@ -177,36 +126,28 @@ df["children"] = df["children"].fillna(children_fill_value)
 
 # Ép kiểu int để đảm bảo cột children chỉ chứa số nguyên.
 df["children"] = df["children"].astype(int)
-
 print(f"Đã thay giá trị thiếu của children bằng: {children_fill_value}")
+
 # ============================================================
 # 9. XỬ LÝ COUNTRY
 # ============================================================
-
 print("\n[7] Xử lý country...")
 
 # country là quốc gia của khách.
 # Nếu thiếu thì dùng "Unknown" để giữ lại dòng dữ liệu.
 df["country"] = df["country"].fillna("Unknown")
-
 print("Đã thay giá trị thiếu của country bằng 'Unknown'.")
-
 
 # ============================================================
 # 10. KIỂM TRA MISSING SAU XỬ LÝ
 # ============================================================
-
 missing_after = df.isnull().sum()
-
 missing_after_nonzero = missing_after[missing_after > 0]
-
 print("\nGiá trị thiếu sau khi xử lý:")
-
 if len(missing_after_nonzero) == 0:
     print("Không còn giá trị thiếu.")
 else:
     print(missing_after_nonzero)
-
 
 # Tạo bảng so sánh missing trước và sau
 missing_after_table = (
@@ -214,9 +155,7 @@ missing_after_table = (
     .sum()
     .reset_index()
 )
-
 missing_after_table.columns = ["column", "missing_after"]
-
 missing_summary = pd.merge(
     missing_before_table,
     missing_after_table,
@@ -243,15 +182,11 @@ print(
     "results/missing_values_before_after.csv"
 )
 
-
 # ============================================================
 # 11. XÓA DỮ LIỆU TRÙNG LẶP
 # ============================================================
-
 print("\n[8] Kiểm tra dữ liệu trùng lặp...")
-
 duplicate_count = df.duplicated().sum()
-
 print(f"Số dòng trùng lặp: {duplicate_count:,}")
 
 if duplicate_count > 0:
@@ -260,11 +195,9 @@ if duplicate_count > 0:
 else:
     print("Không có dòng trùng lặp.")
 
-
 # ============================================================
 # 12. TẠO CÁC BIẾN MỚI
 # ============================================================
-
 print("\n[9] Tạo các biến mới...")
 
 # Tổng số khách = người lớn + trẻ em + trẻ sơ sinh
@@ -288,7 +221,6 @@ print("- total_nights")
 # ============================================================
 # 13. KIỂM TRA DỮ LIỆU KHÔNG HỢP LỆ
 # ============================================================
-
 print("\n[10] Kiểm tra dữ liệu không hợp lệ...")
 
 invalid_guest_mask = df["total_guests"] == 0
@@ -324,7 +256,6 @@ else:
 # ============================================================
 # 14. XỬ LÝ NGÀY ĐẾN
 # ============================================================
-
 print("\n[11] Kiểm tra và chuyển đổi ngày đến...")
 
 # Thứ tự tháng trong dataset là tên tháng bằng tiếng Anh.
@@ -366,7 +297,6 @@ df["arrival_date"] = pd.to_datetime(
 
 invalid_date_mask = df["arrival_date"].isna()
 invalid_date_count = invalid_date_mask.sum()
-
 print(f"Số ngày không chuyển đổi được: {invalid_date_count:,}")
 
 if invalid_date_count > 0:
@@ -395,10 +325,7 @@ if invalid_date_count > 0:
     # Sau khi kiểm tra, các dòng không có ngày hợp lệ
     # được loại bỏ vì không thể sử dụng chính xác cho phân tích theo thời gian.
     df = df.loc[~invalid_date_mask].copy()
-
-    print(
-        f"Đã loại {invalid_date_count:,} dòng do ngày không hợp lệ."
-    )
+    print(f"Đã loại {invalid_date_count:,} dòng do ngày không hợp lệ.")
 
 else:
     print("Không có ngày không hợp lệ.")
@@ -406,11 +333,9 @@ else:
 # Cột này chỉ dùng trong quá trình chuyển đổi.
 df.drop(columns=["arrival_month_number"], inplace=True)
 
-
 # ============================================================
 # 15. SẮP XẾP THỨ TỰ THÁNG
 # ============================================================
-
 # Chuyển arrival_date_month thành categorical để khi phân tích
 # các tháng sẽ được sắp xếp từ January -> December thay vì alphabet.
 df["arrival_date_month"] = pd.Categorical(
@@ -419,22 +344,17 @@ df["arrival_date_month"] = pd.Categorical(
     ordered=True
 )
 
-
 # ============================================================
 # 16. XỬ LÝ ADR CỰC ĐOAN
 # ============================================================
-
 print("\n[12] Kiểm tra ADR cực đoan...")
 
 # ADR = Average Daily Rate.
 # Đây là giá trung bình mỗi ngày của booking.
 # Một số giá trị ADR quá lớn có thể làm ảnh hưởng mạnh đến phân tích.
 ADR_EXTREME_THRESHOLD = 1000
-
 adr_extreme_mask = df["adr"] >= ADR_EXTREME_THRESHOLD
-
 adr_extreme_count = adr_extreme_mask.sum()
-
 print(
     f"Số dòng ADR >= {ADR_EXTREME_THRESHOLD}: "
     f"{adr_extreme_count:,}"
@@ -465,11 +385,9 @@ if adr_extreme_count > 0:
 else:
     print("Không có ADR cực đoan.")
 
-
 # ============================================================
 # 17. PHÁT HIỆN OUTLIER BẰNG IQR
 # ============================================================
-
 print("\n[13] PHÁT HIỆN OUTLIER BẰNG IQR")
 
 # IQR = Interquartile Range.
@@ -495,7 +413,6 @@ print("\n[13] PHÁT HIỆN OUTLIER BẰNG IQR")
 # Sau khi phát hiện, ta sẽ quyết định cách xử lý phù hợp.
 
 IQR_DETECTION_K = 1.5
-
 
 def iqr_info(series):
     """
@@ -523,7 +440,6 @@ def iqr_info(series):
 
     return q1, q3, iqr, lower, upper, outlier_count
 
-
 outlier_columns = [
     "lead_time",
     "adr",
@@ -533,13 +449,10 @@ outlier_columns = [
 ]
 
 outlier_results = []
-
 for column in outlier_columns:
-
     q1, q3, iqr, lower, upper, outlier_count = iqr_info(
         df[column]
     )
-
     outlier_results.append(
         {
             "column": column,
@@ -560,9 +473,7 @@ for column in outlier_columns:
     print(f"  Upper bound = {upper:.2f}")
     print(f"  Số outlier = {outlier_count:,}")
 
-
 outlier_summary = pd.DataFrame(outlier_results)
-
 outlier_summary.to_csv(
     RESULTS_DIR / "outlier_summary.csv",
     index=False,
@@ -574,11 +485,9 @@ print(
     "results/outlier_summary.csv"
 )
 
-
 # ============================================================
 # 18. CAPPING OUTLIER
 # ============================================================
-
 print("\n[14] XỬ LÝ OUTLIER BẰNG CAPPING")
 
 # Ở bước phát hiện, sử dụng 1.5 * IQR.
@@ -595,7 +504,6 @@ print("\n[14] XỬ LÝ OUTLIER BẰNG CAPPING")
 # Capping KHÔNG xóa dòng dữ liệu.
 
 TREATMENT_K = 3.0
-
 
 def cap_by_iqr(series, k=3.0):
     """
@@ -635,7 +543,6 @@ def cap_by_iqr(series, k=3.0):
 
     return cleaned_series, changed_count, lower, upper
 
-
 # ADR
 df["adr_clean"], adr_capped_count, adr_lower, adr_upper = (
     cap_by_iqr(df["adr"], TREATMENT_K)
@@ -666,35 +573,17 @@ df["adr_clean"], adr_capped_count, adr_lower, adr_upper = (
 # Với total_guests và days_in_waiting_list,
 # giữ nguyên dữ liệu vì không áp dụng capping trong bài.
 df["total_guests_clean"] = df["total_guests"]
-
 df["days_in_waiting_list_clean"] = (
     df["days_in_waiting_list"]
 )
 
-
 print("\nKẾT QUẢ CAPPING:")
 
-print(
-    f"- ADR: {adr_capped_count:,} giá trị bị capping"
-)
-
-print(
-    f"- lead_time: {lead_time_capped_count:,} "
-    "giá trị bị capping"
-)
-
-print(
-    f"- total_nights: {total_nights_capped_count:,} "
-    "giá trị bị capping"
-)
-
-print(
-    "- total_guests: không capping"
-)
-
-print(
-    "- days_in_waiting_list: không capping"
-)
+print(f"- ADR: {adr_capped_count:,} giá trị bị capping")
+print(f"- lead_time: {lead_time_capped_count:,} giá trị bị capping")
+print(f"- total_nights: {total_nights_capped_count:,} giá trị bị capping")
+print("- total_guests: không capping")
+print("- days_in_waiting_list: không capping")
 
 
 # Tạo bảng thống kê capping.
@@ -744,25 +633,18 @@ print(
     "results/capping_summary.csv"
 )
 
-
 # ============================================================
 # 19. CHỌN CÁC CỘT CUỐI CÙNG
 # ============================================================
-
 # Giữ lại các cột clean để EDA sử dụng.
 # Các cột *_clean giúp phân biệt dữ liệu gốc và dữ liệu sau xử lý.
 #
 # Có thể đổi tên các cột clean về tên ban đầu để dataset cuối
 # dễ sử dụng hơn.
-
 df["adr"] = df["adr_clean"]
-
 df["lead_time"] = df["lead_time_clean"]
-
 df["total_nights"] = df["total_nights_clean"]
-
 df["total_guests"] = df["total_guests_clean"]
-
 df["days_in_waiting_list"] = (
     df["days_in_waiting_list_clean"]
 )
@@ -780,13 +662,10 @@ df.drop(
     inplace=True
 )
 
-
 # ============================================================
 # 20. KIỂM TRA CUỐI
 # ============================================================
-
 print("\n[15] KIỂM TRA DỮ LIỆU SAU CLEANING")
-
 print(f"Số dòng ban đầu: {initial_rows:,}")
 print(f"Số dòng sau cleaning: {len(df):,}")
 
@@ -794,19 +673,15 @@ print(
     f"Số dòng đã giảm: "
     f"{initial_rows - len(df):,}"
 )
-
 print(f"Số cột sau cleaning: {df.shape[1]:,}")
-
 print(
     f"Số giá trị thiếu còn lại: "
     f"{df.isnull().sum().sum():,}"
 )
-
 print(
     f"Số dòng trùng lặp còn lại: "
     f"{df.duplicated().sum():,}"
 )
-
 
 # ============================================================
 # 21. KIỂM TRA CÁC ĐIỀU KIỆN DỮ LIỆU HỢP LỆ
@@ -838,11 +713,9 @@ print("\nTất cả kiểm tra cuối đã hoàn thành.")
 # ============================================================
 # 22. LƯU DỮ LIỆU SẠCH
 # ============================================================
-
 CLEANED_PATH = (
     PROCESSED_DIR / "hotel_bookings_cleaned.csv"
 )
-
 
 # ============================================================
 # 23. KẾT LUẬN DATA CLEANING
@@ -852,54 +725,18 @@ print("\n" + "=" * 70)
 print("KẾT LUẬN DATA CLEANING")
 print("=" * 70)
 
-print(
-    f"- Dữ liệu ban đầu có {initial_rows:,} dòng."
-)
-
-print(
-    f"- Dữ liệu sau cleaning còn {len(df):,} dòng."
-)
-
-print(
-    f"- Đã xử lý các giá trị thiếu của agent, children và country."
-)
-
-print(
-    f"- Đã loại bỏ cột company do tỷ lệ thiếu cao."
-)
-
-print(
-    f"- Đã xóa {duplicate_count:,} dòng trùng lặp."
-)
-
-print(
-    f"- Đã loại {invalid_total:,} dòng dữ liệu không hợp lệ."
-)
-
-print(
-    f"- Đã kiểm tra {invalid_date_count:,} ngày không hợp lệ."
-)
-
-print(
-    f"- Đã loại {adr_extreme_count:,} dòng ADR cực đoan."
-)
-
-print(
-    f"- ADR bị capping: {adr_capped_count:,} giá trị."
-)
-
-print(
-    f"- lead_time bị capping: {lead_time_capped_count:,} giá trị."
-)
-
-print(
-    f"- total_nights bị capping: {total_nights_capped_count:,} giá trị."
-)
-
-print(
-    "\nFile dữ liệu sạch:"
-)
-
+print(f"- Dữ liệu ban đầu có {initial_rows:,} dòng.")
+print(f"- Dữ liệu sau cleaning còn {len(df):,} dòng.")
+print(f"- Đã xử lý các giá trị thiếu của agent, children và country.")
+print(f"- Đã loại bỏ cột company do tỷ lệ thiếu cao.")
+print(f"- Đã xóa {duplicate_count:,} dòng trùng lặp.")
+print(f"- Đã loại {invalid_total:,} dòng dữ liệu không hợp lệ.")
+print(f"- Đã kiểm tra {invalid_date_count:,} ngày không hợp lệ.")
+print(f"- Đã loại {adr_extreme_count:,} dòng ADR cực đoan.")
+print(f"- ADR bị capping: {adr_capped_count:,} giá trị.")
+print(f"- lead_time bị capping: {lead_time_capped_count:,} giá trị.")
+print(f"- total_nights bị capping: {total_nights_capped_count:,} giá trị.")
+print("\nFile dữ liệu sạch:")
 print(CLEANED_PATH)
 
 print("\nCác bảng thống kê được lưu trong:")
