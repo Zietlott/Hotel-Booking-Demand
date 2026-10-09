@@ -1,7 +1,4 @@
-# TV4 — CORRELATION ANALYSIS 
-# Hotel Booking Demand
-
-import os
+from pathlib import Path
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,11 +12,15 @@ pd.set_option('display.width', 1000)
 sns.set_theme(style="whitegrid")
 
 # 1. TẠO CÁC THƯ MỤC LƯU KẾT QUẢ
-os.makedirs("results/tables", exist_ok=True)
-os.makedirs("results/plots", exist_ok=True)
+BASE_DIR = Path(__file__).resolve().parent.parent
+FIGURE_DIR = BASE_DIR / "results" / "figures" / "correlation"
+TABLE_DIR = BASE_DIR / "results" / "tables" / "correlation"
+
+FIGURE_DIR.mkdir(parents=True, exist_ok=True)
+TABLE_DIR.mkdir(parents=True, exist_ok=True)
 
 # 2. READ DATA & PREPARATION
-file_path = "data/processed/hotel_bookings_cleaned.csv" 
+file_path = BASE_DIR / "data" / "processed" / "hotel_bookings_cleaned.csv" 
 df = pd.read_csv(file_path)
 
 print("Kích thước dữ liệu:", df.shape)
@@ -68,8 +69,8 @@ pearson_corr = numeric_df.corr(method='pearson')
 spearman_corr = numeric_df.corr(method='spearman')
 
 # LƯU MA TRẬN RA FILE CSV
-pearson_corr.to_csv("results/tables/pearson_correlation.csv")
-spearman_corr.to_csv("results/tables/spearman_correlation.csv")
+pearson_corr.to_csv(TABLE_DIR / "pearson_correlation.csv")
+spearman_corr.to_csv(TABLE_DIR / "spearman_correlation.csv")
 print("\nĐã lưu ma trận Pearson và Spearman vào thư mục results/tables/")
 
 # 7. PEARSON HEATMAP
@@ -86,7 +87,7 @@ plt.title("Pearson Correlation Heatmap", fontsize=16, pad=15)
 plt.xticks(rotation=45, ha='right')
 plt.yticks(rotation=0)
 plt.tight_layout()
-plt.savefig("results/plots/pearson_heatmap.png", dpi=300)
+plt.savefig(FIGURE_DIR / "pearson_heatmap.png", dpi=300)
 plt.show()
 
 # 8. SPEARMAN HEATMAP
@@ -103,7 +104,7 @@ plt.title("Spearman Correlation Heatmap", fontsize=16, pad=15)
 plt.xticks(rotation=45, ha='right')
 plt.yticks(rotation=0)
 plt.tight_layout()
-plt.savefig("results/plots/spearman_heatmap.png", dpi=300)
+plt.savefig(FIGURE_DIR / "spearman_heatmap.png", dpi=300)
 plt.show()
 
 # 9. TÌM CÁC CẶP BIẾN CÓ TƯƠNG QUAN MẠNH NHẤT
@@ -118,7 +119,7 @@ correlation_pairs = correlation_pairs.sort_values(by='Absolute_Correlation', asc
 
 # LƯU TOP 15 CẶP TƯƠNG QUAN RA CSV
 top_pairs_df = correlation_pairs[['Variable_1', 'Variable_2', 'Pearson_Correlation']].head(15).round(3)
-top_pairs_df.to_csv("results/tables/top_correlation_pairs.csv", index=False)
+top_pairs_df.to_csv(TABLE_DIR / "top_correlation_pairs.csv", index=False)
 
 print("\n" + "=" * 60)
 print("TOP 15 CORRELATION PAIRS (PEARSON)")
@@ -143,7 +144,7 @@ if 'is_canceled' in numeric_df.columns:
     cancel_corr = cancel_corr.sort_values(by='Abs_Pearson', ascending=False)
 
     # LƯU BẢNG TƯƠNG QUAN HỦY PHÒNG RA CSV
-    cancel_corr[['Pearson', 'Spearman']].round(3).to_csv("results/tables/cancel_correlation.csv")
+    cancel_corr[['Pearson', 'Spearman']].round(3).to_csv(TABLE_DIR / "cancel_correlation.csv")
 
     print("\nPearson và Spearman với is_canceled:")
     print(cancel_corr[['Pearson', 'Spearman']].round(3))
@@ -159,7 +160,7 @@ if 'is_canceled' in numeric_df.columns:
     plt.xlabel("Hệ số tương quan Pearson")
     plt.axvline(x=0, color='red', linestyle='--', linewidth=1)
     plt.tight_layout()
-    plt.savefig("results/plots/cancel_correlation_bar.png", dpi=300)
+    plt.savefig(FIGURE_DIR / "cancel_correlation_bar.png", dpi=300)
     plt.show()
 
 # 11. SCATTER PLOTS & XU HƯỚNG MÙA VỤ
@@ -171,7 +172,7 @@ plt.title("Lead Time vs Total Nights", fontsize=14)
 plt.xlabel("Lead Time (days)")
 plt.ylabel("Total Nights")
 plt.tight_layout()
-plt.savefig("results/plots/scatter_lead_time_total_nights.png", dpi=300)
+plt.savefig(FIGURE_DIR / "scatter_lead_time_total_nights.png", dpi=300)
 plt.show()
 
 # Scatter Plot 2: Lead Time vs Stays in Week Nights
@@ -182,7 +183,7 @@ plt.title("Lead Time vs Stays in Week Nights", fontsize=14)
 plt.xlabel("Lead Time (days)")
 plt.ylabel("Stays in Week Nights")
 plt.tight_layout()
-plt.savefig("results/plots/scatter_lead_time_week_nights.png", dpi=300)
+plt.savefig(FIGURE_DIR / "scatter_lead_time_week_nights.png", dpi=300)
 plt.show()
 
 # Line Plot: Arrival Date Week Number vs ADR
@@ -193,7 +194,7 @@ plt.xlabel("Tuần trong năm (Arrival Date Week Number)")
 plt.ylabel("ADR trung bình")
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.tight_layout()
-plt.savefig("results/plots/seasonality_adr_weekly.png", dpi=300)
+plt.savefig(FIGURE_DIR / "seasonality_adr_weekly.png", dpi=300)
 plt.show()
 
 # 12. PHÂN TÍCH VÀ ĐÁNH GIÁ MỨC ĐỘ TƯƠNG QUAN CÁC CẶP TRỌNG YẾU
@@ -243,8 +244,8 @@ for var1, var2 in important_pairs:
         else:
             print("  - Ý nghĩa thực tiễn: Hai biến có xu hướng thay đổi ngược chiều.")
             print("    Khi một biến tăng, biến còn lại có xu hướng giảm.")
+            
 # 13. LƯU Ý VỀ TƯƠNG QUAN CẤU TRÚC
-
 print("\n" + "=" * 60)
 print("LƯU Ý VỀ TƯƠNG QUAN CẤU TRÚC")
 print("=" * 60)
@@ -268,8 +269,8 @@ print("""
 6. Pearson và Spearman được sử dụng đồng thời để có cái nhìn
    đầy đủ hơn về mối quan hệ giữa các biến.
 """)
-# 14. TỔNG KẾT PHÂN TÍCH
 
+# 14. TỔNG KẾT PHÂN TÍCH
 print("\n" + "=" * 60)
 print("TỔNG KẾT")
 print("=" * 60)

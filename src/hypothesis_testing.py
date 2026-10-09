@@ -1,73 +1,40 @@
-"""
-TV3 - Hypothesis Testing
-Dataset: Hotel Booking Demand
-
-File này chỉ thực hiện:
-1. Đọc dữ liệu đã làm sạch
-2. Kiểm tra các biến dùng cho kiểm định
-3. Thực hiện kiểm định t-test
-4. Thực hiện kiểm định Chi-square
-5. Thực hiện kiểm định ANOVA
-6. Thực hiện post-hoc khi cần
-7. Vẽ biểu đồ hỗ trợ
-8. In và lưu kết quả kiểm định
-
-Dữ liệu đầu vào:
-data/processed/hotel_bookings_cleaned.csv
-
-Biểu đồ:
-results/figures/hypothesis_testing/
-
-Bảng kết quả:
-results/tables/hypothesis_testing/
-"""
-
 import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pingouin as pg
-
 from scipy import stats
 from statsmodels.stats.oneway import anova_oneway
+from pathlib import Path
 
 ALPHA = 0.05
-
 
 # =========================
 # 1. Cấu hình đường dẫn
 # =========================
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-DATA_PATH = "data/processed/hotel_bookings_cleaned.csv"
+DATA_PATH = BASE_DIR / "data" / "processed" / "hotel_bookings_cleaned.csv"
+FIGURE_DIR = BASE_DIR / "results" / "figures" / "hypothesis_testing"
+TABLE_DIR = BASE_DIR / "results" / "tables" / "hypothesis_testing"
 
-FIGURE_DIR = "results/figures/hypothesis_testing"
-TABLE_DIR = "results/tables/hypothesis_testing"
-
-
-# Tạo thư mục nếu chưa tồn tại
-os.makedirs(FIGURE_DIR, exist_ok=True)
-os.makedirs(TABLE_DIR, exist_ok=True)
-
-
+FIGURE_DIR.mkdir(parents=True, exist_ok=True)
+TABLE_DIR.mkdir(parents=True, exist_ok=True)
 # =========================
 # 2. Đọc dữ liệu
 # =========================
-
 df = pd.read_csv(DATA_PATH)
-
 print("=" * 60)
-print("TV3 - HYPOTHESIS TESTING")
+print("HYPOTHESIS TESTING")
 print("=" * 60)
 
 print("\nKích thước dữ liệu:")
 print(df.shape)
 
-
 # =========================
 # 3. Kiểm tra các biến cần dùng
 # =========================
-
 required_columns = [
     "hotel",
     "adr",
@@ -88,8 +55,7 @@ if missing_columns:
         f"Thiếu các cột cần thiết: {missing_columns}"
     )
 
-
-# Chỉ lấy các biến TV3 cần quan tâm để kiểm tra
+# Chỉ lấy các biến cần quan tâm để kiểm tra
 test_data = df[required_columns]
 
 print("\n5 dòng đầu:")
@@ -101,11 +67,9 @@ print(test_data.dtypes)
 print("\nSố lượng giá trị thiếu:")
 print(test_data.isnull().sum())
 
-
 # =========================
 # 4. Kiểm tra giá trị của biến phân loại
 # =========================
-
 print("\nSố lượng theo hotel:")
 print(df["hotel"].value_counts(dropna=False))
 
@@ -115,20 +79,16 @@ print(df["is_canceled"].value_counts(dropna=False))
 print("\nSố lượng theo market_segment:")
 print(df["market_segment"].value_counts(dropna=False))
 
-
 # =========================
 # 5. Kiểm tra nhanh ADR
 # =========================
-
 print("\nThống kê mô tả ADR:")
 print(df["adr"].describe())
-
 
 # =========================
 # 6. Independent Samples t-test
 # ADR giữa City Hotel và Resort Hotel
 # =========================
-
 print("\n" + "=" * 60)
 print("T-TEST: ADR GIỮA CITY HOTEL VÀ RESORT HOTEL")
 print("\nGiả thuyết:")
@@ -147,7 +107,6 @@ resort_adr = df.loc[
     "adr"
 ].dropna()
 
-
 # -------------------------
 # 6.1. Thống kê mô tả
 # -------------------------
@@ -164,12 +123,10 @@ print(f"  n    = {len(resort_adr)}")
 print(f"  Mean = {resort_adr.mean():.4f}")
 print(f"  Std  = {resort_adr.std():.4f}")
 
-
 # -------------------------
 # 6.2. Levene's Test
 # Kiểm tra phương sai 2 nhóm
 # -------------------------
-
 levene_stat, levene_p = stats.levene(
     city_adr,
     resort_adr
@@ -182,18 +139,15 @@ if levene_p < 0.001:
 else:
     print(f"p-value   = {levene_p:.6f}")
 
-
 # Nếu p < 0.05:
 # phương sai 2 nhóm khác nhau
 # -> sử dụng Welch's t-test
 
 equal_variance = levene_p >= ALPHA
 
-
 # -------------------------
 # 6.3. T-test
 # -------------------------
-
 
 t_stat, p_value = stats.ttest_ind(
     city_adr,
@@ -217,11 +171,9 @@ if p_value < 0.001:
 else:
     print(f"p-value     = {p_value:.6f}")
 
-
 # -------------------------
 # 6.4. Khoảng tin cậy 95% cho chênh lệch trung bình
 # -------------------------
-
 mean_diff = city_adr.mean() - resort_adr.mean()
 
 var_city = city_adr.var(ddof=1)
@@ -276,8 +228,6 @@ print(f"95% CI = [{ci_lower:.4f}, {ci_upper:.4f}]")
 # -------------------------
 # 6.5. Kết luận
 # -------------------------
-
-
 if p_value < ALPHA:
 
     if city_adr.mean() > resort_adr.mean():
@@ -300,12 +250,10 @@ else:
 print("\nKết luận:")
 print(conclusion)
 
-
 # -------------------------
 # 6.6. Cohen's d
 # Đo mức độ khác biệt thực tế
 # -------------------------
-
 n1 = len(city_adr)
 n2 = len(resort_adr)
 
@@ -340,11 +288,9 @@ print(
     f"({d_level})"
 )
 
-
 # -------------------------
 # 6.7. Biểu đồ
 # -------------------------
-
 plt.figure(figsize=(8, 6))
 
 sns.boxplot(
@@ -360,21 +306,16 @@ plt.ylabel("ADR")
 plt.tight_layout()
 
 plt.savefig(
-    os.path.join(
-        FIGURE_DIR,
-        "ttest_adr_by_hotel.png"
-    ),
+    FIGURE_DIR / "ttest_adr_by_hotel.png",
     dpi=300,
     bbox_inches="tight"
 )
 
 plt.close()
 
-
 # -------------------------
 # 6.8. Lưu kết quả
 # -------------------------
-
 ttest_result = pd.DataFrame({
     "test": [test_name],
     "city_n": [len(city_adr)],
@@ -404,13 +345,10 @@ ttest_result.to_csv(
     encoding="utf-8-sig"
 )
 
-
-
 # =========================
 # 7. Chi-square Test of Independence
 # hotel và is_canceled
 # =========================
-
 print("\n" + "=" * 60)
 print("CHI-SQUARE: HOTEL VÀ IS_CANCELED")
 print("\nGiả thuyết:")
@@ -418,11 +356,9 @@ print("H0: Loại khách sạn và trạng thái hủy đặt phòng độc lậ
 print("H1: Loại khách sạn và trạng thái hủy đặt phòng có mối liên hệ.")
 print("=" * 60)
 
-
 # -------------------------
 # 7.1. Tạo bảng chéo
 # -------------------------
-
 contingency_table = pd.crosstab(
     df["hotel"],
     df["is_canceled"]
@@ -431,16 +367,13 @@ contingency_table = pd.crosstab(
 print("\nBảng tần số quan sát:")
 print(contingency_table)
 
-
 # -------------------------
 # 7.2. Chi-square test
 # -------------------------
-
 chi2_stat, p_value_chi, dof, expected = stats.chi2_contingency(
     contingency_table,
     correction=False
 )
-
 print("\nKết quả Chi-square:")
 print(f"Chi-square statistic = {chi2_stat:.4f}")
 print(f"Degrees of freedom   = {dof}")
@@ -449,8 +382,7 @@ if p_value_chi < 0.001:
     print("p-value              < 0.001")
 else:
     print(f"p-value              = {p_value_chi:.6f}")
-
-
+    
 # -------------------------
 # 7.3. Expected frequencies
 # -------------------------
@@ -479,14 +411,11 @@ else:
         "Nên cân nhắc Fisher's Exact Test."
     )
 
-
 # -------------------------
 # 7.4. Cramer's V
 # Đo mức độ liên hệ
 # -------------------------
-
 n = contingency_table.to_numpy().sum()
-
 r, k = contingency_table.shape
 
 cramers_v = np.sqrt(
@@ -508,11 +437,9 @@ print(
     f"({v_level})"
 )
 
-
 # -------------------------
 # 7.5. Tỷ lệ hủy theo loại khách sạn
 # -------------------------
-
 cancellation_rate = pd.crosstab(
     df["hotel"],
     df["is_canceled"],
@@ -554,11 +481,9 @@ print(f"City Hotel: {city_cancel_rate:.2f}%")
 print(f"Resort Hotel: {resort_cancel_rate:.2f}%")
 print(f"Chênh lệch: {abs_cancel_diff:.2f} điểm phần trăm")
 
-
 # -------------------------
 # 7.6. Kết luận
 # -------------------------
-
 if p_value_chi < ALPHA:
     chi_conclusion = (
         "Bác bỏ H0. Có mối liên hệ có ý nghĩa thống kê "
@@ -578,11 +503,9 @@ else:
 print("\nKết luận:")
 print(chi_conclusion)
 
-
 # -------------------------
 # 7.7. Lưu kết quả Chi-square
 # -------------------------
-
 chi_result = pd.DataFrame({
     "test": ["Chi-square Test of Independence"],
     "chi2_statistic": [chi2_stat],
@@ -606,7 +529,6 @@ chi_result.to_csv(
     encoding="utf-8-sig"
 )
 
-
 # Lưu bảng tần số quan sát
 contingency_table.to_csv(
     os.path.join(
@@ -615,7 +537,6 @@ contingency_table.to_csv(
     ),
     encoding="utf-8-sig"
 )
-
 
 # -------------------------
 # 7.8. Biểu đồ tỷ lệ hủy
@@ -641,16 +562,12 @@ plt.ylabel("Tỷ lệ hủy (%)")
 plt.tight_layout()
 
 plt.savefig(
-    os.path.join(
-        FIGURE_DIR,
-        "chi_square_cancellation_by_hotel.png"
-    ),
+    FIGURE_DIR / "chi_square_cancellation_by_hotel.png",
     dpi=300,
     bbox_inches="tight"
 )
 
 plt.close()
-
 
 
 # =========================
@@ -669,7 +586,6 @@ print("=" * 60)
 # 8.1. Chuẩn bị dữ liệu
 # Loại các nhóm có kích thước mẫu < 30
 # -------------------------
-
 segment_counts = df["market_segment"].value_counts()
 
 print("\nSố lượng ban đầu theo market_segment:")
@@ -693,7 +609,6 @@ anova_data = df[
 print("\nSố lượng theo market_segment:")
 print(anova_data["market_segment"].value_counts())
 
-
 # -------------------------
 # 8.2. Thống kê mô tả theo nhóm
 # -------------------------
@@ -708,7 +623,6 @@ anova_summary = (
 print("\nThống kê mô tả ADR theo market_segment:")
 print(anova_summary)
 
-
 # -------------------------
 # 8.3. Tạo các nhóm ADR
 # -------------------------
@@ -717,7 +631,6 @@ groups = [
     group["adr"].dropna().values
     for _, group in anova_data.groupby("market_segment")
 ]
-
 
 # -------------------------
 # 8.4. Levene's Test
@@ -735,7 +648,6 @@ if levene_p_anova < 0.001:
     print("p-value   < 0.001")
 else:
     print(f"p-value   = {levene_p_anova:.6f}")
-
 
 # -------------------------
 # 8.5. Chọn ANOVA phù hợp dựa trên Levene's Test
@@ -778,12 +690,9 @@ if p_value_anova < 0.001:
 else:
     print(f"p-value     = {p_value_anova:.6f}")
 
-
 # -------------------------
 # 8.6. Kết luận
 # -------------------------
-
-
 if p_value_anova < ALPHA:
     anova_conclusion = (
         "Bác bỏ H0. Có ít nhất một market segment "
@@ -799,13 +708,11 @@ else:
 print("\nKết luận:")
 print(anova_conclusion)
 
-
 # -------------------------
 # 8.7. Post-hoc Test
 # Games-Howell nếu phương sai không đồng nhất
 # Tukey HSD nếu phương sai đồng nhất
 # -------------------------
-
 if p_value_anova < ALPHA:
     if levene_p_anova < ALPHA:
         posthoc = pg.pairwise_gameshowell(
@@ -833,11 +740,9 @@ if p_value_anova < ALPHA:
         encoding="utf-8-sig"
     )
 
-
 # -------------------------
 # 8.8. Eta-squared
 # -------------------------
-
 grand_mean = anova_data["adr"].mean()
 
 ss_between = sum(
@@ -865,11 +770,9 @@ print(
     f"({eta_level})"
 )
 
-
 # -------------------------
 # 8.9. Biểu đồ
 # -------------------------
-
 plt.figure(figsize=(12, 6))
 
 sns.boxplot(
@@ -887,21 +790,16 @@ plt.xticks(rotation=30)
 plt.tight_layout()
 
 plt.savefig(
-    os.path.join(
-        FIGURE_DIR,
-        "anova_adr_by_market_segment.png"
-    ),
+    FIGURE_DIR / "anova_adr_by_market_segment.png",
     dpi=300,
     bbox_inches="tight"
 )
 
 plt.close()
 
-
 # -------------------------
 # 8.10. Lưu kết quả
 # -------------------------
-
 anova_result = pd.DataFrame({
     "test": [anova_method],
     "f_statistic": [f_stat],

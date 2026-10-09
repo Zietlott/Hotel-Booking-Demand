@@ -17,7 +17,7 @@ CLEANED_PATH = (
 )
 
 RESULTS_DIR = BASE_DIR / "results"
-FIGURE_DIR = RESULTS_DIR / "figures"
+FIGURE_DIR = RESULTS_DIR / "figures" / "eda"
 FIGURE_DIR.mkdir(parents=True, exist_ok=True)
 
 # ============================================================
@@ -66,7 +66,12 @@ print(f"Tỷ lệ hủy: {cancelled:.2f}%")
 # BIỂU ĐỒ 1
 # ============================================================
 plt.figure(figsize=(8, 6))
-sns.countplot(data=df, x="is_canceled")
+sns.countplot(
+    data=df,
+    x="is_canceled",
+    hue="is_canceled",
+    legend=False
+)
 plt.title("Tỷ lệ Booking bị hủy và không bị hủy", fontsize=14)
 plt.xlabel("Trạng thái booking")
 plt.ylabel("Số lượng booking")

@@ -4,7 +4,6 @@ import pandas as pd
 # ============================================================
 # 1. KHAI BÁO ĐƯỜNG DẪN
 # ============================================================
-
 # BASE_DIR là thư mục gốc của project Hotel-Booking-Demand
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -15,17 +14,19 @@ RAW_PATH = BASE_DIR / "data" / "raw" / "hotel_bookings.csv"
 PROCESSED_DIR = BASE_DIR / "data" / "processed"
 
 # Các bảng thống kê trong quá trình cleaning được lưu vào results
-RESULTS_DIR = BASE_DIR / "results"
+FIGURE_DIR = BASE_DIR / "results" / "figures" / "data_cleaning"
+TABLE_DIR = BASE_DIR / "results" / "tables" / "data_cleaning"
+
 PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+FIGURE_DIR.mkdir(parents=True, exist_ok=True)
+TABLE_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # ============================================================
 # 2. ĐỌC DỮ LIỆU
 # ============================================================
-
 print("=" * 70)
-print("TV1 - DATA CLEANING")
+print("DATA CLEANING")
 print("=" * 70)
 
 print("\n[1] Đọc dữ liệu...")
@@ -171,16 +172,18 @@ missing_summary["missing_after"] = (
     missing_summary["missing_after"].astype(int)
 )
 
+
+missing_summary_path = (
+    TABLE_DIR / "missing_values_before_after.csv"
+)
+
 missing_summary.to_csv(
-    RESULTS_DIR / "missing_values_before_after.csv",
+    missing_summary_path,
     index=False,
     encoding="utf-8-sig"
 )
 
-print(
-    "\nĐã lưu bảng missing: "
-    "results/missing_values_before_after.csv"
-)
+print(f"\nĐã lưu bảng missing: {missing_summary_path}")
 
 # ============================================================
 # 11. XÓA DỮ LIỆU TRÙNG LẶP
@@ -312,7 +315,7 @@ if invalid_date_count > 0:
     ].copy()
 
     invalid_date_records.to_csv(
-        RESULTS_DIR / "invalid_arrival_dates.csv",
+        TABLE_DIR / "invalid_arrival_dates.csv",
         index=False,
         encoding="utf-8-sig"
     )
@@ -364,7 +367,7 @@ if adr_extreme_count > 0:
 
     # Lưu lại các dòng cực đoan để có thể kiểm tra.
     df.loc[adr_extreme_mask].to_csv(
-        RESULTS_DIR / "adr_extreme_records.csv",
+        TABLE_DIR / "adr_extreme_records.csv",
         index=False,
         encoding="utf-8-sig"
     )
@@ -474,16 +477,15 @@ for column in outlier_columns:
     print(f"  Số outlier = {outlier_count:,}")
 
 outlier_summary = pd.DataFrame(outlier_results)
+outlier_summary_path = TABLE_DIR / "outlier_summary.csv"
+
 outlier_summary.to_csv(
-    RESULTS_DIR / "outlier_summary.csv",
+    outlier_summary_path,
     index=False,
     encoding="utf-8-sig"
 )
 
-print(
-    "\nĐã lưu bảng outlier: "
-    "results/outlier_summary.csv"
-)
+print(f"\nĐã lưu bảng outlier: {outlier_summary_path}")
 
 # ============================================================
 # 18. CAPPING OUTLIER
@@ -622,16 +624,16 @@ capping_summary["capped_percent"] = (
     * 100
 )
 
+
+capping_summary_path = TABLE_DIR / "capping_summary.csv"
+
 capping_summary.to_csv(
-    RESULTS_DIR / "capping_summary.csv",
+    capping_summary_path,
     index=False,
     encoding="utf-8-sig"
 )
 
-print(
-    "\nĐã lưu bảng capping: "
-    "results/capping_summary.csv"
-)
+print(f"\nĐã lưu bảng capping: {capping_summary_path}")
 
 # ============================================================
 # 19. CHỌN CÁC CỘT CUỐI CÙNG
@@ -686,7 +688,6 @@ print(
 # ============================================================
 # 21. KIỂM TRA CÁC ĐIỀU KIỆN DỮ LIỆU HỢP LỆ
 # ============================================================
-
 # Kiểm tra giá trị children có phải số nguyên không.
 if not (df["children"] % 1 == 0).all():
     raise ValueError(
@@ -716,11 +717,16 @@ print("\nTất cả kiểm tra cuối đã hoàn thành.")
 CLEANED_PATH = (
     PROCESSED_DIR / "hotel_bookings_cleaned.csv"
 )
+df.to_csv(
+    CLEANED_PATH,
+    index=False,
+    encoding="utf-8-sig"
+)
+print(f"Đã lưu dữ liệu sạch vào: {CLEANED_PATH}")
 
 # ============================================================
 # 23. KẾT LUẬN DATA CLEANING
 # ============================================================
-
 print("\n" + "=" * 70)
 print("KẾT LUẬN DATA CLEANING")
 print("=" * 70)
@@ -740,6 +746,6 @@ print("\nFile dữ liệu sạch:")
 print(CLEANED_PATH)
 
 print("\nCác bảng thống kê được lưu trong:")
-print(RESULTS_DIR)
+print(TABLE_DIR)
 
 print("=" * 70)

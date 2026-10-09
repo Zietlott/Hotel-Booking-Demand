@@ -1,4 +1,3 @@
-
 import sys
 from pathlib import Path
 import numpy as np
@@ -18,8 +17,8 @@ if sys.platform.startswith("win"):
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_PATH = BASE_DIR / "data" / "processed" / "hotel_bookings_cleaned.csv"
 RESULTS_DIR = BASE_DIR / "results"
-FIGURES_DIR = RESULTS_DIR / "figures"
-TABLES_DIR = RESULTS_DIR / "tables"
+FIGURES_DIR = RESULTS_DIR / "figures" / "distribution"
+TABLES_DIR = RESULTS_DIR / "tables" / "distribution"
 
 FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 TABLES_DIR.mkdir(parents=True, exist_ok=True)
@@ -43,7 +42,6 @@ plt.rcParams.update({
 
 ALPHA = 0.05
 TARGET_VARS = ["adr", "lead_time", "total_of_special_requests"]
-
 
 # 2. DATA VALIDATION
 def load_and_validate_data(file_path):
@@ -75,9 +73,7 @@ def load_and_validate_data(file_path):
     print(f"Missing (3 biến chính): {total_missing_target}")
     print(f"Duplicates:             {dup_count:,}")
     print(f"Rows used for analysis: {len(clean_df):,}")
-
     return clean_df
-
 
 # 3. HÀM TIỆN ÍCH THỐNG KÊ & VẼ HÌNH
 def calculate_descriptive_stats(series, var_name):
@@ -117,7 +113,6 @@ def plot_qq(ax, series, dist="norm", color="#2b5c8f", title="Q-Q Plot"):
     ax.set_xlabel("Phân vị lý thuyết")
     ax.set_ylabel("Phân vị mẫu")
     ax.legend(loc="lower right")
-
 
 # 4. PHÂN TÍCH BIẾN 1: ADR
 def analyze_adr(df):
@@ -228,7 +223,6 @@ def analyze_adr(df):
 
     return desc, test_rows, interp_rows, summary_info
 
-
 # 5. PHÂN TÍCH BIẾN 2: LEAD_TIME
 def analyze_lead_time(df):
     """Phân tích biến duration lead_time: kiểm tra độ lệch và đánh giá Exponential."""
@@ -304,7 +298,6 @@ def analyze_lead_time(df):
     }
 
     return desc, test_rows, interp_rows, summary_info
-
 
 # 6. PHÂN TÍCH BIẾN 3: TOTAL_OF_SPECIAL_REQUESTS
 def analyze_special_requests(df):
@@ -422,7 +415,6 @@ def analyze_special_requests(df):
 
     return desc, test_rows, interp_rows, summary_info
 
-
 # 7. XUẤT CSV
 def save_results(desc_list, test_rows, interp_rows):
     """Lưu 3 file CSV chuẩn hóa vào results/tables/."""
@@ -440,7 +432,6 @@ def save_results(desc_list, test_rows, interp_rows):
     print(f"1. {TABLES_DIR / 'descriptive_statistics.csv'}")
     print(f"2. {TABLES_DIR / 'distribution_test_results.csv'}")
     print(f"3. {TABLES_DIR / 'distribution_interpretation.csv'}")
-
 
 # 8. TERMINAL SUMMARY
 def print_summary(adr_s, lt_s, sr_s):
@@ -479,10 +470,9 @@ def print_summary(adr_s, lt_s, sr_s):
     print(f"- Conclusion: {sr_s['conclusion']}")
     print()
 
-
 # 9. MAIN
 def main():
-    print("TV2 - PHÂN TÍCH PHÂN PHỐI XÁC SUẤT")
+    print("PHÂN TÍCH PHÂN PHỐI XÁC SUẤT")
     clean_df = load_and_validate_data(DATA_PATH)
 
     all_desc, all_tests, all_interps = [], [], []
@@ -502,7 +492,6 @@ def main():
     save_results(all_desc, all_tests, all_interps)
     print_summary(s_adr, s_lt, s_sr)
     print("Hoàn tất thành công phân tích Probability Distribution!")
-
 
 if __name__ == "__main__":
     main()

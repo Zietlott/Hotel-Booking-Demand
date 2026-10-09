@@ -22,8 +22,8 @@ from sklearn.metrics import (
 # ==========================================
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_PATH = BASE_DIR / "data" / "processed" / "hotel_bookings_cleaned.csv"
-FIGURE_DIR = BASE_DIR / "results" / "figures"
-TABLE_DIR = BASE_DIR / "results" / "tables"
+FIGURE_DIR = BASE_DIR / "results" / "figures" / "regression"
+TABLE_DIR = BASE_DIR / "results" / "tables" / "regression"
 FIGURE_DIR.mkdir(parents=True, exist_ok=True)
 TABLE_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -158,9 +158,7 @@ plt.plot(
 plt.xlabel("Actual ADR")
 plt.ylabel("Predicted ADR")
 plt.title("Actual vs Predicted ADR")
-
 plt.tight_layout()
-
 plt.savefig(
     FIGURE_DIR / "actual_vs_predicted.png",
     dpi=300

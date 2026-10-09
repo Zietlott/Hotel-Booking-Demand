@@ -1,2 +1,2 @@
 ﻿test,f_statistic,p_value,levene_statistic,levene_p_value,eta_squared,effect_size_level,conclusion
-Welch's ANOVA,7808.970445901994,0.0,773.2778748655508,0.0,0.15601454501164777,lớn,Bác bỏ H0. Có ít nhất một market segment có ADR trung bình khác biệt có ý nghĩa thống kê.
+Welch's ANOVA,7808.970445901996,0.0,773.2778748655508,0.0,0.15601454501164777,lớn,Bác bỏ H0. Có ít nhất một market segment có ADR trung bình khác biệt có ý nghĩa thống kê.
