@@ -21,6 +21,7 @@ TABLE_DIR = BASE_DIR / "results" / "tables" / "hypothesis_testing"
 
 FIGURE_DIR.mkdir(parents=True, exist_ok=True)
 TABLE_DIR.mkdir(parents=True, exist_ok=True)
+
 # =========================
 # 2. Đọc dữ liệu
 # =========================

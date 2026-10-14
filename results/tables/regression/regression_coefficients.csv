@@ -1,8 +1,41 @@
-Feature,Coefficient
-children,38.32891835210714
-adults,18.795430281357714
-total_of_special_requests,6.5607366366282625
-stays_in_week_nights,0.43700380344020573
-booking_changes,0.35456281166497017
-lead_time,-0.019567846670034902
-stays_in_weekend_nights,-0.26099684745637397
+﻿Feature,Coefficient
+cat__market_segment_Undefined,-111.03501244118667
+cat__market_segment_Complementary,-62.93975654005374
+cat__market_segment_Online TA,44.591037667796144
+cat__market_segment_Direct,43.60015962957049
+cat__arrival_date_month_August,42.62644982414501
+cat__meal_SC,-40.509025951273735
+cat__market_segment_Aviation,35.510323343013276
+cat__arrival_date_month_July,31.297499019378265
+cat__arrival_date_month_January,-30.52981907804944
+cat__meal_FB,29.610290718846212
+cat__arrival_date_month_February,-28.361476407317035
+num__children,28.24570238095787
+cat__meal_BB,-22.478071982027554
+cat__meal_Undefined,22.39383874125804
+cat__arrival_date_month_November,-22.378845741133826
+cat__arrival_date_month_June,20.482362000440425
+cat__arrival_date_month_December,-20.03512434012576
+cat__market_segment_Corporate,19.5704162812966
+cat__arrival_date_month_March,-19.027186081883052
+cat__market_segment_Groups,17.340340283804277
+cat__arrival_date_month_September,15.7609490129765
+cat__arrival_date_month_May,13.51477470392731
+cat__market_segment_Offline TA/TO,13.362491775763816
+cat__meal_HB,10.982968473196603
+num__adults,10.975895163525584
+cat__hotel_Resort Hotel,-9.122282085029932
+cat__hotel_City Hotel,9.12228208502899
+cat__customer_type_Transient,6.755902903282255
+cat__customer_type_Group,-5.1457996010193305
+cat__customer_type_Contract,-4.45927639722948
+cat__arrival_date_month_October,-4.031639785128676
+cat__is_repeated_guest_0,3.9255837514915872
+cat__is_repeated_guest_1,-3.925583751491453
+cat__customer_type_Transient-Party,2.8491730949688434
+num__total_of_special_requests,1.6955295447668437
+num__booking_changes,1.0234034974019173
+num__stays_in_weekend_nights,-0.9493275518889908
+num__stays_in_week_nights,0.7452630610556517
+cat__arrival_date_month_April,0.6820568727787807
+num__lead_time,-0.09287260269598832

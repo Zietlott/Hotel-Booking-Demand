@@ -215,6 +215,17 @@ adr_by_month_hotel = (
     .mean()
     .reset_index()
 )
+
+# Sắp xếp tháng theo thứ tự thời gian
+adr_by_month_hotel["arrival_date_month"] = pd.Categorical(
+    adr_by_month_hotel["arrival_date_month"],
+    categories=month_order,
+    ordered=True
+)
+
+adr_by_month_hotel = adr_by_month_hotel.sort_values(
+    "arrival_date_month"
+)
 print(adr_by_month_hotel)
 
 # ============================================================

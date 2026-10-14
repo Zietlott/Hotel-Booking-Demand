@@ -21,7 +21,6 @@ PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 FIGURE_DIR.mkdir(parents=True, exist_ok=True)
 TABLE_DIR.mkdir(parents=True, exist_ok=True)
 
-
 # ============================================================
 # 2. ĐỌC DỮ LIỆU
 # ============================================================
@@ -172,7 +171,6 @@ missing_summary["missing_after"] = (
     missing_summary["missing_after"].astype(int)
 )
 
-
 missing_summary_path = (
     TABLE_DIR / "missing_values_before_after.csv"
 )
@@ -220,7 +218,6 @@ print("Đã tạo:")
 print("- total_guests")
 print("- total_nights")
 
-
 # ============================================================
 # 13. KIỂM TRA DỮ LIỆU KHÔNG HỢP LỆ
 # ============================================================
@@ -246,7 +243,6 @@ invalid_mask = (
     | invalid_night_mask
     | invalid_adr_mask
 )
-
 invalid_total = invalid_mask.sum()
 
 if invalid_total > 0:
@@ -254,7 +250,6 @@ if invalid_total > 0:
     print(f"Đã loại {invalid_total:,} dòng dữ liệu không hợp lệ.")
 else:
     print("Không có dòng dữ liệu không hợp lệ cần loại bỏ.")
-
 
 # ============================================================
 # 14. XỬ LÝ NGÀY ĐẾN
@@ -490,6 +485,12 @@ print(f"\nĐã lưu bảng outlier: {outlier_summary_path}")
 # ============================================================
 # 18. CAPPING OUTLIER
 # ============================================================
+# Lưu dữ liệu đã làm sạch nhưng CHƯA capping để sử dụng cho regression.
+df.to_csv(
+    PROCESSED_DIR / "hotel_bookings_cleaned_pre_capping.csv",
+    index=False
+)
+
 print("\n[14] XỬ LÝ OUTLIER BẰNG CAPPING")
 
 # Ở bước phát hiện, sử dụng 1.5 * IQR.
