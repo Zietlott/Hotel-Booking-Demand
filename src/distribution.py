@@ -166,13 +166,13 @@ def analyze_adr(df):
     axes[0, 0].axvline(desc["Mean"], color="#d9534f", linestyle="--", linewidth=1.8, label=f"Mean: {desc['Mean']:.1f}")
     axes[0, 0].axvline(desc["Median"], color="#2ca02c", linestyle="-", linewidth=1.8, label=f"Median: {desc['Median']:.1f}")
     axes[0, 0].set_title("A. Histogram & KDE (ADR gốc)", pad=8)
-    axes[0, 0].set_xlabel("ADR (EUR)")
+    axes[0, 0].set_xlabel("ADR")
     axes[0, 0].set_ylabel("Mật độ xác suất")
     axes[0, 0].legend()
 
     sns.boxplot(x=s_adr, color="#6baed6", ax=axes[0, 1], flierprops={"marker": "o", "markersize": 3, "alpha": 0.3})
     axes[0, 1].set_title(f"B. Boxplot (IQR = {desc['IQR']:.1f})", pad=8)
-    axes[0, 1].set_xlabel("ADR (EUR)")
+    axes[0, 1].set_xlabel("ADR")
 
     plot_qq(axes[0, 2], s_adr, dist="norm", color="#2b5c8f", title="C. Q-Q Plot so với Normal (ADR gốc)")
 

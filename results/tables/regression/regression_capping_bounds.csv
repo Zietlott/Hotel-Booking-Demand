@@ -1,4 +1,4 @@
-﻿Feature,Lower_Bound,Upper_Bound
+﻿Biến,Ngưỡng dưới,Ngưỡng trên
 lead_time,-327.0,464.0
 stays_in_weekend_nights,-6.0,8.0
 stays_in_week_nights,-8.0,13.0
